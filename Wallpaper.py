@@ -6,7 +6,7 @@ import sys
 import random
 import math
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyPKCE
 import json
 import pprint
 import requests
@@ -61,7 +61,7 @@ def downloadAlbumCover(track):
         with open(fullPath, 'wb') as f:
             shutil.copyfileobj(r.raw, f)
 
-        print('Image sucessfully Downloaded: ', filename)
+        print('Image sucessfully downloaded: ', filename)
         return fullPath
     else:
         print('Image Couldn\'t be retrieved')
@@ -83,7 +83,7 @@ else:
         exit(1)
 
 # Download the user's top tracks.
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
+sp = spotipy.Spotify(auth_manager=SpotifyPKCE(scope=scope))
 print("\nDownloading Top Tracks ({})...".format(duration))
 topTracks = sp.current_user_top_tracks(limit=50, time_range=duration)["items"]
 
@@ -114,7 +114,11 @@ os.mkdir(wallpaperPath)
 print("\nCreating album covers:")
 
 # Create a wallpaper for each of the user's monitors.
-for idx, monitor in enumerate(screeninfo.get_monitors()):
+monitors = screeninfo.get_monitors()
+
+# NOTE: The photos are split across the available monitors.
+coversPerMonitor = int(numCovers/len(monitors))
+for idx, monitor in enumerate(monitors):
     
     # Create a name for the wallpaper.
     wallpaperName = "{} - {}x{}".format(idx, monitor.width, monitor.height)
@@ -122,12 +126,12 @@ for idx, monitor in enumerate(screeninfo.get_monitors()):
 
     # Calculate the number of columns and rows required to fit the album covers to the screen.
     ratio = monitor.width / monitor.height
-    cols = math.floor(math.sqrt(numCovers * ratio))
-    rows = math.floor(numCovers / cols)
+    cols = math.floor(math.sqrt(coversPerMonitor * ratio))
+    rows = math.floor(coversPerMonitor / cols)
 
-    # Make sure the album covers are ordered differently on different displays.
-    random.shuffle(albumCoverPaths)
-
+    # Get the subset of covers for this monitor.
+    covers = albumCoverPaths[0:coversPerMonitor]
+    del albumCoverPaths[0:coversPerMonitor]
     # Create the wallpaper!
-    wallpaper = create_collage(albumCoverPaths, cols=cols, rows=rows)
+    wallpaper = create_collage(covers, cols=cols, rows=rows)
     wallpaper.save(wallpaperPath + "/" +wallpaperName + ".jpg")
