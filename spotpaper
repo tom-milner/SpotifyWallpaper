@@ -1,9 +1,11 @@
 #!/bin/sh
 
+SPOTIFY_WALLPAPER_LOCATION="/Users/tommilner/Projects/SpotifyWallpaper/"
+
 # Note: This only works on Mac!
 # Provide the top track duration to as a command line argument to the program.
-cd /Users/tommilner/Projects/SpotifyWallpaper/
-python3 Wallpaper.py $1
+cd $SPOTIFY_WALLPAPER_LOCATION
+pipenv run python3 Wallpaper.py $1
 
 # Restarting the dock will force the desktop backgrounds to update.
 killall Dock 

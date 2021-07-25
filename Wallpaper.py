@@ -11,17 +11,15 @@ import json
 import pprint
 import requests
 import screeninfo
-import dotenv
 from multiprocessing.pool import ThreadPool
 
-dotenv.load_dotenv()
 
 def create_collage(covers, cols=3, rows=3):
     '''Create a collage from the provided list of album covers.'''
     w, h = Image.open(covers[0]).size
-    collage_width = cols * w
-    collage_height = rows * h
-    new_image = Image.new('RGB', (collage_width, collage_height))
+    collageWidth = cols * w
+    collageHeight = rows * h
+    new_image = Image.new('RGB', (collageWidth, collageHeight))
     cursor = (0, 0)
     for cover in covers:
         # place image
@@ -30,17 +28,12 @@ def create_collage(covers, cols=3, rows=3):
         # move cursor
         y = cursor[1]
         x = cursor[0] + w
-        if cursor[0] >= (collage_width - w):
+        if cursor[0] >= (collageWidth - w):
             y = cursor[1] + h
             x = 0
         cursor = (x, y)
 
     return new_image
-
-
-def artistsToString(artistList):
-    '''Turn a list of artists into a single string.'''
-    return ", ".join(map(lambda track: track["name"], artistList))
 
 
 def downloadAlbumCover(track):
@@ -56,7 +49,7 @@ def downloadAlbumCover(track):
         # Set decode_content value to True, otherwise the downloaded image file's size will be zero.
         r.raw.decode_content = True
         # Open a local file with wb ( write binary ) permission.
-        filename = album["name"].replace("/"," ") + ".jpg"
+        filename = album["name"].replace("/", " ") + ".jpg"
         fullPath = albumCoverPath + "/" + filename
         with open(fullPath, 'wb') as f:
             shutil.copyfileobj(r.raw, f)
@@ -67,9 +60,6 @@ def downloadAlbumCover(track):
         print('Image Couldn\'t be retrieved')
 
 
-#  The parts of the user's spotify account we need to access.
-scope = "user-top-read"
-
 #  Get the duration to get the user's top tracks from.
 validDurations = ["short_term", "medium_term", "long_term"]
 if(len(sys.argv) < 2):
@@ -79,17 +69,19 @@ else:
     duration = sys.argv[1]
     if duration not in validDurations:
         print("Invalid duration.")
-        print("Valid durations are: {}".format( validDurations))
+        print("Valid durations are: {}".format(validDurations))
         exit(1)
 
 # Download the user's top tracks.
+scope = "user-top-read"
 sp = spotipy.Spotify(auth_manager=SpotifyPKCE(scope=scope))
 print("\nDownloading Top Tracks ({})...".format(duration))
 topTracks = sp.current_user_top_tracks(limit=50, time_range=duration)["items"]
 
 # Deduplicate multiple instances of same album.
 print("Original Tracks: " + str(len(topTracks)))
-dedupTrackAlbums = list({track["album"]["name"]: track for track in topTracks}.values())
+dedupTrackAlbums = list(
+    {track["album"]["name"]: track for track in topTracks}.values())
 print("Deduped Albums: " + str(len(dedupTrackAlbums)))
 
 #  Create the directory to store the album covers in.
@@ -116,10 +108,10 @@ print("\nCreating album covers:")
 # Create a wallpaper for each of the user's monitors.
 monitors = screeninfo.get_monitors()
 
-# NOTE: The photos are split across the available monitors.
+# NOTE: The album covers are split across the available monitors.
 coversPerMonitor = int(numCovers/len(monitors))
 for idx, monitor in enumerate(monitors):
-    
+
     # Create a name for the wallpaper.
     wallpaperName = "{} - {}x{}".format(idx, monitor.width, monitor.height)
     print(wallpaperName)
@@ -134,4 +126,4 @@ for idx, monitor in enumerate(monitors):
     del albumCoverPaths[0:coversPerMonitor]
     # Create the wallpaper!
     wallpaper = create_collage(covers, cols=cols, rows=rows)
-    wallpaper.save(wallpaperPath + "/" +wallpaperName + ".jpg")
+    wallpaper.save(wallpaperPath + "/" + wallpaperName + ".jpg")
