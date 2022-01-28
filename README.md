@@ -1,10 +1,10 @@
-# SpotifyWallpaper
+# SpotifyWallpaper
 
 ## About
 
 This project creates a desktop wallpaper made from a collage of your favourite Spotify tracks.
 
-## Usage
+## Usage
 
 1. First, set up a new Spotify project for SpotifyWallpaper. This can be done [here](https://developer.spotify.com/dashboard/applications).
 2. Run the following command to create a file for the required environment variables:
