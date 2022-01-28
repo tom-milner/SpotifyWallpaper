@@ -109,7 +109,9 @@ print("\nCreating album covers:")
 monitors = screeninfo.get_monitors()
 
 # NOTE: The album covers are split across the available monitors.
-coversPerMonitor = int(numCovers/len(monitors))
+# EDIT 10/12/2021: not anymore!
+# coversPerMonitor = int(numCovers/len(monitors))
+coversPerMonitor = numCovers
 for idx, monitor in enumerate(monitors):
 
     # Create a name for the wallpaper.
@@ -123,7 +125,7 @@ for idx, monitor in enumerate(monitors):
 
     # Get the subset of covers for this monitor.
     covers = albumCoverPaths[0:coversPerMonitor]
-    del albumCoverPaths[0:coversPerMonitor]
+    #del albumCoverPaths[0:coversPerMonitor]
     # Create the wallpaper!
     wallpaper = create_collage(covers, cols=cols, rows=rows)
     wallpaper.save(wallpaperPath + "/" + wallpaperName + ".jpg")

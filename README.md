@@ -17,10 +17,10 @@ This project creates a desktop wallpaper made from a collage of your favourite S
 4. Install the required dependencies for the project by running:
 
    ```bash
-   pip install -f requirements.txt
+   pipenv install -r requirements.txt
    ```
 
 5. Now run the project using:
    ```bash
-   python3 Wallpaper.py
+   pipenv run python3 Wallpaper.py
    ```
